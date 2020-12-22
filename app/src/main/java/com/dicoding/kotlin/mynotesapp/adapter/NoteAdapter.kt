@@ -12,17 +12,16 @@ import com.dicoding.kotlin.mynotesapp.R
 import com.dicoding.kotlin.mynotesapp.databinding.ItemNoteBinding
 import com.dicoding.kotlin.mynotesapp.entity.Note
 
-class NoteAdapter(private val activity: Activity): RecyclerView.Adapter<NoteAdapter.NoteViewHolder>() {
-
+class NoteAdapter(private val activity: Activity) : RecyclerView.Adapter<NoteAdapter.NoteViewHolder>() {
     var listNotes = ArrayList<Note>()
-    set(listNotes) {
-        if (listNotes.size > 0){
-            this.listNotes.clear()
-        }
-        this.listNotes.addAll(listNotes)
+        set(listNotes) {
+            if (listNotes.size > 0) {
+                this.listNotes.clear()
+            }
+            this.listNotes.addAll(listNotes)
 
-        notifyDataSetChanged()
-    }
+            notifyDataSetChanged()
+        }
 
     fun addItem(note: Note) {
         this.listNotes.add(note)
@@ -42,7 +41,6 @@ class NoteAdapter(private val activity: Activity): RecyclerView.Adapter<NoteAdap
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_note, parent, false)
-//        val binding = ItemNoteBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return NoteViewHolder(view)
     }
 
@@ -53,23 +51,19 @@ class NoteAdapter(private val activity: Activity): RecyclerView.Adapter<NoteAdap
     override fun getItemCount(): Int = this.listNotes.size
 
     inner class NoteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
-        var binding = ItemNoteBinding.bind(itemView)
-
+        private val binding = ItemNoteBinding.bind(itemView)
         fun bind(note: Note) {
-            with(itemView) {
-                binding.tvItemTitle.text = note.title
-                binding.tvItemDate.text = note.date
-                binding.tvItemDescription.text = note.description
-                binding.cvItemNote.setOnClickListener(CustomOnItemClickListener(adapterPosition, object : CustomOnItemClickListener.OnItemClickCallback {
-                    override fun onItemClicked(view: View, position: Int) {
-                        val intent = Intent(activity, NoteAddUpdateActivity::class.java)
-                        intent.putExtra(NoteAddUpdateActivity.EXTRA_POSITION, position)
-                        intent.putExtra(NoteAddUpdateActivity.EXTRA_NOTE, note)
-                        activity.startActivityForResult(intent, NoteAddUpdateActivity.REQUEST_UPDATE)
-                    }
-                }))
-            }
+            binding.tvItemTitle.text = note.title
+            binding.tvItemDate.text = note.date
+            binding.tvItemDescription.text = note.description
+            binding.cvItemNote.setOnClickListener(CustomOnItemClickListener(adapterPosition, object : CustomOnItemClickListener.OnItemClickCallback {
+                override fun onItemClicked(view: View, position: Int) {
+                    val intent = Intent(activity, NoteAddUpdateActivity::class.java)
+                    intent.putExtra(NoteAddUpdateActivity.EXTRA_POSITION, position)
+                    intent.putExtra(NoteAddUpdateActivity.EXTRA_NOTE, note)
+                    activity.startActivityForResult(intent, NoteAddUpdateActivity.REQUEST_UPDATE)
+                }
+            }))
         }
     }
 }

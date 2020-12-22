@@ -17,9 +17,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
-
     private lateinit var adapter: NoteAdapter
     private lateinit var noteHelper: NoteHelper
+
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,7 +43,6 @@ class MainActivity : AppCompatActivity() {
         noteHelper.open()
 
         if (savedInstanceState == null) {
-            // proses ambil data
             loadNotesAsync()
         } else {
             val list = savedInstanceState.getParcelableArrayList<Note>(EXTRA_STATE)
@@ -51,47 +50,6 @@ class MainActivity : AppCompatActivity() {
                 adapter.listNotes = list
             }
         }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putParcelableArrayList(EXTRA_STATE, adapter.listNotes)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (data != null) {
-            when (requestCode) {
-                NoteAddUpdateActivity.REQUEST_ADD -> if (resultCode == NoteAddUpdateActivity.RESULT_ADD) {
-                    val note = data.getParcelableExtra<Note>(NoteAddUpdateActivity.EXTRA_NOTE)
-
-                    note?.let { adapter.addItem(it) }
-                    binding.rvNotes.smoothScrollToPosition(adapter.itemCount - 1)
-                }
-                NoteAddUpdateActivity.REQUEST_UPDATE ->
-                    when (resultCode) {
-                        NoteAddUpdateActivity.RESULT_UPDATE -> {
-                            val note =
-                                data.getParcelableExtra<Note>(NoteAddUpdateActivity.EXTRA_NOTE)
-                            val position = data.getIntExtra(NoteAddUpdateActivity.EXTRA_POSITION, 0)
-                            note?.let { adapter.updateItem(position, it) }
-                            binding.rvNotes.smoothScrollToPosition(position)
-                            showSnackbarMessage("Satu item berhasil diubah")
-                        }
-                        NoteAddUpdateActivity.RESULT_DELETE -> {
-                            val position = data.getIntExtra(NoteAddUpdateActivity.EXTRA_POSITION, 0)
-                            adapter.removeItem(position)
-                            showSnackbarMessage("Satu item berhasil dihapus")
-                        }
-                    }
-            }
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        noteHelper.close()
     }
 
     private fun loadNotesAsync() {
@@ -110,6 +68,55 @@ class MainActivity : AppCompatActivity() {
                 showSnackbarMessage("Tidak ada data saat ini")
             }
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putParcelableArrayList(EXTRA_STATE, adapter.listNotes)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (data != null) {
+            when (requestCode) {
+                NoteAddUpdateActivity.REQUEST_ADD -> if (resultCode == NoteAddUpdateActivity.RESULT_ADD) {
+                    val note = data.getParcelableExtra<Note>(NoteAddUpdateActivity.EXTRA_NOTE) as Note
+
+                    adapter.addItem(note)
+                    binding.rvNotes.smoothScrollToPosition(adapter.itemCount - 1)
+
+                    showSnackbarMessage("Satu item berhasil ditambahkan")
+                }
+                NoteAddUpdateActivity.REQUEST_UPDATE ->
+                    when (resultCode) {
+
+                        NoteAddUpdateActivity.RESULT_UPDATE -> {
+
+                            val note = data.getParcelableExtra<Note>(NoteAddUpdateActivity.EXTRA_NOTE) as Note
+                            val position = data.getIntExtra(NoteAddUpdateActivity.EXTRA_POSITION, 0)
+
+                            adapter.updateItem(position, note)
+                            binding.rvNotes.smoothScrollToPosition(position)
+
+                            showSnackbarMessage("Satu item berhasil diubah")
+                        }
+
+                        NoteAddUpdateActivity.RESULT_DELETE -> {
+                            val position = data.getIntExtra(NoteAddUpdateActivity.EXTRA_POSITION, 0)
+
+                            adapter.removeItem(position)
+
+                            showSnackbarMessage("Satu item berhasil dihapus")
+                        }
+                    }
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        noteHelper.close()
     }
 
     private fun showSnackbarMessage(message: String) {

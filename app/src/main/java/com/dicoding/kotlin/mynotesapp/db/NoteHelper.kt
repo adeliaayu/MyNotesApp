@@ -13,10 +13,6 @@ class NoteHelper(context: Context) {
     private var dataBaseHelper: DatabaseHelper = DatabaseHelper(context)
     private lateinit var database: SQLiteDatabase
 
-    init {
-        dataBaseHelper = DatabaseHelper(context)
-    }
-
     @Throws(SQLException::class)
     fun open() {
         database = dataBaseHelper.writableDatabase
@@ -37,21 +33,12 @@ class NoteHelper(context: Context) {
             null,
             null,
             null,
-            "$_ID ASC"
-        )
+            "$_ID ASC",
+            null)
     }
 
     fun queryById(id: String): Cursor {
-        return database.query(
-            DATABASE_TABLE,
-            null,
-            "$_ID = ?",
-            arrayOf(id),
-            null,
-            null,
-            null,
-            null
-        )
+        return database.query(DATABASE_TABLE, null, "$_ID = ?", arrayOf(id), null, null, null, null)
     }
 
     fun insert(values: ContentValues?): Long {
@@ -68,10 +55,7 @@ class NoteHelper(context: Context) {
 
     companion object {
         private const val DATABASE_TABLE = TABLE_NAME
-        private lateinit var dataBaseHelper: DatabaseHelper
         private var INSTANCE: NoteHelper? = null
-
-        private lateinit var database: SQLiteDatabase
 
         fun getInstance(context: Context): NoteHelper =
             INSTANCE ?: synchronized(this) {
